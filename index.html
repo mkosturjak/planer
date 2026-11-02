@@ -2,7 +2,7 @@
 <html lang="hr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Raspored</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -38,7 +38,7 @@
   @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --muted:#D6C2B4; --rule:#6A5648; --accent:#ECC3A3; } }
 }
 *,*::before,*::after{box-sizing:inherit}
-html{height:100%; scroll-padding-top:calc(env(safe-area-inset-top,0px) + 3.5rem); -webkit-text-size-adjust:100%}
+html{height:100%; touch-action:manipulation; scroll-padding-top:calc(env(safe-area-inset-top,0px) + 3.5rem); -webkit-text-size-adjust:100%}
 body{
   margin:0; background:var(--bg); color:var(--ink);
   font-family:-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
