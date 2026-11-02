@@ -9,9 +9,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#F3F6F2; --surface:#FFFFFF; --ink:#1D2926; --muted:#5F6E69;
-  --rule:#D3DDD8; --accent:#0F6B5C; --accent-ink:#FFFFFF; --danger:#B3261E;
-  --now:#E3F1EC; --off:#C5CFCB;
+  /* Grupirane pozadine kao u iOS-u: stranica je nude, kartice su svjetlije */
+  --bg:#F2E9E0; --surface:#FDFAF6; --fill:#EADCCF; --ink:#3B2A21; --muted:#735A4C;
+  --rule:#E6D7CA; --accent:#87583C; --accent-ink:#FFFFFF; --danger:#9E3A2A;
+  --now:#F6ECE2; --off:#A8968A; --bar:rgba(242,233,224,.82);
+  --radius:12px;
   color-scheme: light;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);
@@ -19,124 +21,166 @@
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#121817; --surface:#1A2220; --ink:#E3ECE8; --muted:#94A49E;
-    --rule:#2C3836; --accent:#5BC3AE; --accent-ink:#0B1513; --danger:#F2867E;
-    --now:#1E3430; --off:#3A4745; color-scheme: dark;
+    --bg:#1A1411; --surface:#2A211C; --fill:#3A2E27; --ink:#F3E8DE; --muted:#B9A293;
+    --rule:#3B2F28; --accent:#D8A783; --accent-ink:#2A1C14; --danger:#EF8C78;
+    --now:#33271F; --off:#6B5A50; --bar:rgba(26,20,17,.82);
+    color-scheme: dark;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#121817; --surface:#1A2220; --ink:#E3ECE8; --muted:#94A49E;
-  --rule:#2C3836; --accent:#5BC3AE; --accent-ink:#0B1513; --danger:#F2867E;
-  --now:#1E3430; --off:#3A4745; color-scheme: dark;
+  --bg:#1A1411; --surface:#2A211C; --fill:#3A2E27; --ink:#F3E8DE; --muted:#B9A293;
+  --rule:#3B2F28; --accent:#D8A783; --accent-ink:#2A1C14; --danger:#EF8C78;
+  --now:#33271F; --off:#6B5A50; --bar:rgba(26,20,17,.82);
+  color-scheme: dark;
+}
+@media (prefers-contrast: more){
+  :root{ --muted:#5A4438; --rule:#BFA894; --accent:#6E4329; }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --muted:#D6C2B4; --rule:#6A5648; --accent:#ECC3A3; } }
 }
 *,*::before,*::after{box-sizing:inherit}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html{height:100%; scroll-padding-top:calc(env(safe-area-inset-top,0px) + 3.5rem); -webkit-text-size-adjust:100%}
 body{
   margin:0; background:var(--bg); color:var(--ink);
-  font-family:"Bricolage Grotesque", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  font-size:1rem; line-height:1.45;
+  font-family:-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  font-size:1.0625rem; line-height:1.4; -webkit-font-smoothing:antialiased;
 }
-.wrap{max-width:40rem; margin:0 auto; padding:1.25rem 1rem 5rem}
+body::before{
+  content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:10;
+  background:var(--bar); -webkit-backdrop-filter:blur(20px) saturate(160%); backdrop-filter:blur(20px) saturate(160%);
+}
+.wrap{max-width:40rem; margin:0 auto; padding:1rem 1rem 4rem}
 .hidden{display:none !important}
-button{font:inherit; color:inherit}
-button:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+button{font:inherit; color:inherit; -webkit-tap-highlight-color:transparent}
+button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
 
+/* Navigacijska traka: prozirna, lebdi iznad sadržaja dok se lista */
 .back{
-  background:none; border:0; padding:.4rem 0; margin-bottom:.75rem; cursor:pointer;
-  color:var(--accent); font-weight:600; font-size:1rem;
+  position:sticky; top:env(safe-area-inset-top,0px); z-index:5;
+  display:flex; align-items:center; gap:.15rem;
+  width:calc(100% + 2rem); min-height:44px; margin:-1rem -1rem .5rem; padding:.5rem 1rem;
+  background:var(--bar); -webkit-backdrop-filter:blur(20px) saturate(160%); backdrop-filter:blur(20px) saturate(160%);
+  border:0; border-bottom:.5px solid var(--rule); cursor:pointer; text-align:left;
+  color:var(--accent); font-size:1.0625rem; font-weight:400;
 }
-h1.big{margin:0; font-size:clamp(2rem, 9vw, 3rem); font-weight:800; line-height:1; letter-spacing:-.02em}
-.sub{margin:.4rem 0 1.25rem; color:var(--muted); font-size:1.05rem}
 
-/* Months */
-.sec{font-size:1.25rem; font-weight:700; margin:1.5rem 0 .6rem}
-.week{list-style:none; margin:0; padding:0; border-top:2px solid var(--ink)}
-.wday{
-  width:100%; display:grid; grid-template-columns:3.6rem 1fr; gap:.25rem; text-align:left;
-  background:none; border:0; border-bottom:1px solid var(--rule); padding:.65rem 0; cursor:pointer;
+/* Naslovi: jedino mjesto s vlastitim fontom */
+h1.big{
+  margin:.25rem 0 0; font-family:"Bricolage Grotesque", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size:clamp(2rem, 9vw, 2.6rem); font-weight:800; line-height:1.05; letter-spacing:-.02em;
 }
-.wday:disabled{cursor:default; color:var(--off)}
-.wday .dname{font-size:.85rem; color:var(--muted); line-height:1.1}
-.wday .dnum{display:block; font-size:1.6rem; font-weight:700; line-height:1; color:var(--ink); font-variant-numeric:tabular-nums}
-.wday:disabled .dname, .wday:disabled .dnum{color:var(--off)}
-.wday.today{background:var(--now)}
-.wday.today .dnum{color:var(--accent)}
-.wday ul{list-style:none; margin:0; padding:0 .5rem 0 0}
-.wday li{padding:.1rem 0}
+.sub{margin:.3rem 0 0; color:var(--muted); font-size:.9375rem}
+.sec{font-size:1.25rem; font-weight:700; margin:1.75rem 0 .5rem; letter-spacing:-.01em}
+
+.pill{margin:.4rem 0 0; font-size:.8125rem; color:var(--muted); display:flex; align-items:center; gap:.4rem}
+.pill::before{content:""; width:.5rem; height:.5rem; border-radius:50%; background:var(--off); flex:none}
+.pill.ok{color:var(--accent)} .pill.ok::before{background:var(--accent)}
+.pill.warn{color:var(--danger)} .pill.warn::before{background:var(--danger)}
+
+/* Ovaj tjedan: grupirana lista s odvojnicima i strelicom */
+.week{list-style:none; margin:0; padding:0; background:var(--surface); border-radius:var(--radius); overflow:hidden}
+.week li + li .wday{border-top:.5px solid var(--rule)}
+.week li + li{position:relative}
+.wday{
+  width:100%; min-height:44px; display:grid; grid-template-columns:4rem 1fr auto; gap:.5rem; align-items:baseline;
+  background:none; border:0; padding:.6rem 1rem; cursor:pointer; text-align:left; font-size:.9375rem;
+}
+.wday::after{content:"›"; color:var(--off); font-size:1.3rem; line-height:1; align-self:center}
+.wday:active{background:var(--fill)}
+.wday .dname{font-size:.8125rem; color:var(--muted); margin-right:.3rem}
+.wday .dnum{font-size:1.0625rem; font-weight:600; font-variant-numeric:tabular-nums}
+.wday.today .dname, .wday.today .dnum{color:var(--accent); font-weight:700}
+.wday ul{list-style:none; margin:0; padding:0}
 .wday li b{font-weight:600; font-variant-numeric:tabular-nums; margin-right:.4rem}
 .wday .none{color:var(--muted)}
-.months{display:grid; grid-template-columns:repeat(2, 1fr); gap:.6rem; list-style:none; margin:0; padding:0}
-@media (min-width:34rem){ .months{grid-template-columns:repeat(3, 1fr)} }
+
+/* Kalendar: mjeseci */
+.months{display:grid; grid-template-columns:repeat(3, 1fr); gap:.5rem; list-style:none; margin:0; padding:0}
 .month{
-  width:100%; text-align:left; cursor:pointer; padding:.9rem .9rem 1rem;
-  background:var(--surface); border:1px solid var(--rule); border-radius:.6rem;
+  width:100%; min-height:44px; text-align:left; cursor:pointer; padding:.6rem .7rem;
+  background:var(--surface); border:0; border-radius:var(--radius);
 }
-.month strong{display:block; font-size:1.35rem; font-weight:700; line-height:1.1}
-.month span{display:block; color:var(--muted); font-size:.85rem; margin-top:.3rem}
-.month.current{border:2px solid var(--accent)}
+.month:active{background:var(--fill)}
+.month strong{display:block; font-size:1rem; font-weight:600; line-height:1.2; overflow-wrap:anywhere}
+.month span{display:block; color:var(--muted); font-size:.75rem; margin-top:.1rem}
+.month.current{box-shadow:inset 0 0 0 1.5px var(--accent)}
 .month.current strong{color:var(--accent)}
 
-/* Month grid */
-.mhead{display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:.5rem; margin-bottom:1rem}
-.mhead .title{text-align:center}
+/* Mjesec */
+.mhead, .dhead{display:grid; grid-template-columns:44px 1fr 44px; align-items:center; gap:.5rem; margin:.25rem 0 1rem}
+.mhead .title, .dhead .title{text-align:center; min-width:0}
+.dhead p{margin:.3rem 0 0; color:var(--muted); font-size:.9375rem}
 .nav{
-  width:2.75rem; height:2.75rem; border-radius:50%; border:1px solid var(--rule);
-  background:var(--surface); font-size:1.3rem; cursor:pointer;
+  width:44px; height:44px; border-radius:50%; border:0; background:var(--surface);
+  color:var(--accent); font-size:1.4rem; line-height:1; cursor:pointer;
 }
-.nav:disabled{opacity:.3; cursor:default}
-.wk, .grid{display:grid; grid-template-columns:repeat(7, 1fr); gap:.3rem}
-.wk div{text-align:center; color:var(--muted); font-size:.8rem; padding-bottom:.3rem}
+.nav:disabled{color:var(--off); opacity:.5; cursor:default}
+.wk, .grid{display:grid; grid-template-columns:repeat(7, 1fr)}
+.wk div{text-align:center; color:var(--muted); font-size:.75rem; font-weight:600; padding-bottom:.4rem}
+.grid{background:var(--surface); border-radius:var(--radius); padding:.4rem; row-gap:.2rem}
 .cell{
-  aspect-ratio:1; border-radius:.5rem; border:1px solid var(--rule); background:var(--surface);
-  cursor:pointer; position:relative; font-size:1.1rem; font-weight:600; font-variant-numeric:tabular-nums;
+  min-height:44px; aspect-ratio:1; border-radius:50%; border:0; background:none; margin:0 auto; width:100%; max-width:3rem;
+  cursor:pointer; position:relative; font-size:1.0625rem; font-weight:500; font-variant-numeric:tabular-nums;
 }
-.cell:disabled{background:transparent; border-color:transparent; color:var(--off); cursor:default; font-weight:400}
-.cell.today{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
+.cell:not(:disabled):active{background:var(--fill)}
+.cell:disabled{color:var(--off); cursor:default; font-weight:400}
+.cell.today{background:var(--accent); color:var(--accent-ink); font-weight:700}
 .cell.has::after{
-  content:""; position:absolute; left:50%; bottom:18%; width:.35rem; height:.35rem; margin-left:-.175rem;
+  content:""; position:absolute; left:50%; bottom:14%; width:.3rem; height:.3rem; margin-left:-.15rem;
   border-radius:50%; background:var(--accent);
 }
 .cell.today.has::after{background:var(--accent-ink)}
-.blank{aspect-ratio:1}
+.blank{min-height:44px}
 
-/* Day */
-.dhead{display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:.5rem; margin-bottom:1.25rem}
-.dhead .title{text-align:center; min-width:0}
-.dhead p{margin:.35rem 0 0; color:var(--muted); font-size:1.05rem}
-.slots{list-style:none; margin:0; padding:0; border-top:2px solid var(--ink)}
-.slot{display:grid; grid-template-columns:3.6rem 1fr; border-bottom:1px solid var(--rule)}
+/* Dan: grupirana lista sati */
+.slots{list-style:none; margin:0; padding:0; background:var(--surface); border-radius:var(--radius); overflow:hidden}
+.slot{display:grid; grid-template-columns:3rem 1fr; position:relative}
+.slot + .slot::before{content:""; position:absolute; top:0; right:0; left:3rem; border-top:.5px solid var(--rule)}
 .slot.now{background:var(--now)}
-.hour{padding:.7rem 0 .5rem; font-size:1.6rem; font-weight:600; line-height:1; font-variant-numeric:tabular-nums}
-.hour small{display:block; font-size:.72rem; font-weight:400; color:var(--muted); margin-top:.25rem}
-.slot textarea{
-  width:100%; min-height:3.6rem; resize:vertical; border:0; background:transparent;
-  color:var(--ink); font:inherit; padding:.7rem .5rem; outline:none;
-}
-.slot textarea::placeholder{color:var(--muted); opacity:.55}
-.slot textarea:focus-visible{box-shadow:inset 3px 0 0 var(--accent)}
-.entry{min-width:0; padding-bottom:.55rem}
-.entry textarea{min-height:2.8rem; padding-bottom:.3rem}
-.dur{display:flex; align-items:center; gap:.6rem; padding:0 .5rem; flex-wrap:wrap}
-.dur select{
-  font:inherit; font-size:.9rem; padding:.35rem .5rem; border:1px solid var(--rule); border-radius:.4rem;
-  background:var(--surface); color:var(--ink);
-}
-.dur select:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
-.dur span{color:var(--muted); font-size:.85rem}
-.slot.filled .hour{color:var(--accent)}
-.dur .warn{color:var(--danger); font-weight:600; flex-basis:100%}
-.slot.clash{background:color-mix(in srgb, var(--danger) 9%, transparent)}
+.hour{padding:.5rem 0 .35rem .85rem; font-size:1.0625rem; font-weight:600; line-height:1; font-variant-numeric:tabular-nums; color:var(--muted)}
+.hour small{display:block; font-size:.625rem; font-weight:400; margin-top:.2rem}
+.slot.filled .hour{color:var(--accent); font-weight:700}
+.slot:not(.filled):not(.clash):not(:focus-within) .dur{display:none}
+.slot:not(.filled):not(:focus-within) .entry{padding-bottom:0}
+.slot.clash{background:color-mix(in srgb, var(--danger) 8%, var(--surface))}
 .slot.clash .hour{color:var(--danger)}
-.slot.covered textarea::placeholder{color:var(--accent); opacity:.85}
+.entry{min-width:0; padding:0 .85rem .4rem 0}
+.slot textarea{
+  width:100%; min-height:2.1rem; resize:none; field-sizing:content; border:0; background:transparent;
+  color:var(--ink); font:inherit; font-size:.9375rem; padding:.45rem .4rem .2rem; outline:none; border-radius:8px;
+}
+.slot textarea::placeholder{color:var(--off)}
+.slot.covered textarea::placeholder{color:var(--accent)}
+.slot textarea:focus-visible{outline:none; background:var(--now)}
+.dur{display:flex; align-items:center; gap:.4rem; padding:0 .4rem; flex-wrap:wrap}
+.dur select{
+  font:inherit; font-size:.875rem; min-height:32px; padding:.2rem .5rem; border:0; border-radius:8px;
+  background:var(--fill); color:var(--ink); -webkit-appearance:none; appearance:none;
+  padding-right:1.6rem; background-repeat:no-repeat; background-position:right .55rem center; background-size:.6rem;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23735A4C' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .dur select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23B9A293' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
+}
+.dur span{color:var(--muted); font-size:.75rem}
+.dur .warn{color:var(--danger); font-weight:600; flex-basis:100%}
 
-.bar{display:flex; flex-wrap:wrap; gap:.6rem; align-items:center; margin-top:1.5rem}
-.btn{font-weight:600; padding:.6rem 1rem; border-radius:.5rem; cursor:pointer; border:1px solid var(--rule); background:transparent}
-.btn.danger{color:var(--danger); border-color:var(--danger)}
-.btn.solid{background:var(--accent); border-color:var(--accent); color:var(--accent-ink)}
-.safe{margin:.2rem 0; color:var(--muted)}
+/* Sigurnost podataka */
+.safe{margin:.25rem 0; color:var(--muted); font-size:.9375rem}
 .safe.ok{color:var(--accent); font-weight:600}
 .safe.warn{color:var(--danger); font-weight:600}
-.status{color:var(--muted); font-size:.85rem; min-height:1.2em; margin-top:.75rem}
+.bar{display:flex; flex-wrap:wrap; gap:.6rem; align-items:center; margin-top:1rem}
+.field{
+  flex:1; min-width:12rem; min-height:44px; font:inherit; padding:.55rem .8rem; border:0; border-radius:10px;
+  background:var(--surface); color:var(--ink);
+}
+.btn{min-height:44px; font-weight:600; padding:.6rem 1.1rem; border-radius:10px; cursor:pointer; border:0; background:var(--surface); color:var(--accent)}
+.btn.solid{background:var(--accent); color:var(--accent-ink)}
+.btn.danger{color:var(--danger)}
+.status{color:var(--muted); font-size:.8125rem; min-height:1.2em; margin-top:.75rem}
+
+@media (prefers-reduced-transparency: reduce){
+  :root{--bar:var(--bg)}
+}
 </style>
 </head>
 <body>
@@ -145,25 +189,18 @@ h1.big{margin:0; font-size:clamp(2rem, 9vw, 3rem); font-weight:800; line-height:
   <!-- Svi mjeseci -->
   <section id="vMonths">
     <h1 class="big">Raspored</h1>
-    <p class="sub" id="range"></p>
+    <p class="pill" id="syncPill"></p>
     <h2 class="sec">Ovaj tjedan</h2>
     <ol class="week" id="week"></ol>
     <h2 class="sec">Kalendar</h2>
     <ul class="months" id="months"></ul>
-    <div class="bar"><button class="btn solid" id="goToday">Otvori danas</button></div>
     <h2 class="sec">Sigurnost podataka</h2>
     <p class="safe" id="cloudState">Provjeravam spremanje…</p>
     <div id="sheetForm" class="bar" style="margin-top:.6rem">
-      <input type="url" id="sheetUrl" placeholder="Link Google skripte (…/exec)" aria-label="Link Google skripte" style="flex:1; min-width:12rem; font:inherit; padding:.55rem .7rem; border:1px solid var(--rule); border-radius:.5rem; background:var(--surface); color:var(--ink)">
+      <input type="url" id="sheetUrl" placeholder="Link Google skripte (…/exec)" aria-label="Link Google skripte" class="field">
       <button class="btn solid" id="sheetConnect">Spoji tablicu</button>
     </div>
     <div class="bar" style="margin-top:.6rem"><button class="btn hidden" id="sheetOff">Odspoji tablicu</button></div>
-    <p class="safe" id="backupState"></p>
-    <div class="bar" style="margin-top:.6rem">
-      <button class="btn" id="exportBtn">Spremi kopiju</button>
-      <button class="btn" id="importBtn">Vrati iz kopije</button>
-      <input type="file" id="importFile" accept=".json,application/json" class="hidden">
-    </div>
     <div class="status" id="homeStatus" aria-live="polite"></div>
   </section>
 
@@ -188,13 +225,6 @@ h1.big{margin:0; font-size:clamp(2rem, 9vw, 3rem); font-weight:800; line-height:
       <button class="nav" id="dNext" aria-label="Sljedeći dan">›</button>
     </div>
     <ol class="slots" id="slots"></ol>
-    <div class="bar">
-      <button class="btn danger" id="del">Obriši dan</button>
-      <span id="confirm" class="hidden">
-        <button class="btn danger" id="delYes">Da, obriši sve unose</button>
-        <button class="btn" id="delNo">Odustani</button>
-      </span>
-    </div>
     <div class="status" id="status" aria-live="polite"></div>
   </section>
 
@@ -280,12 +310,19 @@ h1.big{margin:0; font-size:clamp(2rem, 9vw, 3rem); font-weight:800; line-height:
   }
   function setSync(ok){
     syncOk = ok;
+    const pill = $("syncPill");
+    if (pill){
+      if (!sheetUrl){ pill.className = "pill warn"; pill.textContent = "Google tablica nije spojena. Molimo pričekajte par sekundi dok se tablica ne spoji."; }
+      else if (ok){ pill.className = "pill ok"; pill.textContent = "Spojeno s Google tablicom"; }
+      else if (ok === false){ pill.className = "pill warn"; pill.textContent = "Google tablica nedostupna"; }
+      else { pill.className = "pill"; pill.textContent = "Povezivanje s Google tablicom…"; }
+    }
     const el = $("cloudState"); if (!el) return;
     $("sheetForm").classList.toggle("hidden", !!sheetUrl);
     $("sheetOff").classList.toggle("hidden", !sheetUrl);
     if (!sheetUrl){
       el.className = "safe warn";
-      el.textContent = "Raspored je spremljen samo na ovom uređaju. Spoji Google tablicu ili redovito spremaj kopiju.";
+      el.textContent = "Raspored je zasad spremljen samo na ovom uređaju. Spoji Google tablicu da se podaci ne izgube.";
     } else if (ok){
       const t = new Date(lastSync);
       el.className = "safe ok";
@@ -395,7 +432,6 @@ h1.big{margin:0; font-size:clamp(2rem, 9vw, 3rem); font-weight:800; line-height:
   /* ---- Svi mjeseci ---- */
   function renderMonths(){
     const r = range();
-    $("range").textContent = "Od "+fullDate(r.start)+" do "+fullDate(r.end);
     const fmt = m => pad(Math.floor(m/60) % 24)+":"+pad(m%60);
     const DSHORT = ["Ned","Pon","Uto","Sri","Čet","Pet","Sub"];
     const wk = $("week"); wk.innerHTML = "";
@@ -444,7 +480,7 @@ h1.big{margin:0; font-size:clamp(2rem, 9vw, 3rem); font-weight:800; line-height:
       const li = document.createElement("li");
       const b = document.createElement("button");
       b.className = "month" + (key === cur ? " current" : "");
-      b.innerHTML = "<strong>"+MON_N[m-1]+"</strong><span>"+y+(n ? " · "+n+(n===1?" dan":" dana")+" s unosima" : "")+"</span>";
+      b.innerHTML = "<strong>"+MON_N[m-1]+"</strong><span>"+y+(n ? " · "+n+(n===1?" dan":" dana") : "")+"</span>";
       b.onclick = () => nav("m-"+key);
       li.append(b); ul.append(li);
     });
@@ -486,7 +522,6 @@ h1.big{margin:0; font-size:clamp(2rem, 9vw, 3rem); font-weight:800; line-height:
   /* ---- Dan ---- */
   function renderDay(s){
     if (!inRange(s)) return nav("");
-    hideConfirm();
     const d = parse(s);
     const mKey = s.slice(0,7);
     $("toMonth").textContent = "‹ "+MON_N[d.getMonth()]+" "+d.getFullYear();
@@ -588,13 +623,10 @@ h1.big{margin:0; font-size:clamp(2rem, 9vw, 3rem); font-weight:800; line-height:
       li.append(lab, box); ol.append(li);
     }
     checkOverlaps();
-    $("del").onclick = () => { $("del").classList.add("hidden"); $("confirm").classList.remove("hidden"); $("delNo").focus(); };
-    $("delYes").onclick = () => { delete data.days[s]; save(); renderDay(s); status("Dan je obrisan."); };
     document.title = DAYS[d.getDay()]+", "+fullDate(d);
     show("vDay");
   }
 
-  function hideConfirm(){ $("confirm").classList.add("hidden"); $("del").classList.remove("hidden"); }
   function status(msg){
     $("status").textContent = msg; clearTimeout(statusTimer);
     if (msg) statusTimer = setTimeout(() => $("status").textContent = "", 2500);
@@ -602,8 +634,8 @@ h1.big{margin:0; font-size:clamp(2rem, 9vw, 3rem); font-weight:800; line-height:
 
   /* ---- Navigacija ---- */
   function nav(h){
-    if (h) location.hash = h;
-    else { history.pushState(null, "", location.pathname + location.search); route(); }
+    const target = h || "pocetna";
+    if (location.hash === "#"+target) route(); else location.hash = target;
   }
   function prune(){
     const today = iso(range().start);
@@ -620,12 +652,8 @@ h1.big{margin:0; font-size:clamp(2rem, 9vw, 3rem); font-weight:800; line-height:
     else renderMonths();
   }
   $("toMonths").onclick = () => nav("");
-  $("goToday").onclick = () => nav("d-"+iso(range().start));
   window.addEventListener("hashchange", route);
   window.addEventListener("popstate", route);
-  $("exportBtn").onclick = exportData;
-  $("importBtn").onclick = () => $("importFile").click();
-  $("importFile").onchange = e => { const f = e.target.files[0]; if (f) importData(f); e.target.value = ""; };
   try{ if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); }catch(e){}
   route();
   showBackup();
