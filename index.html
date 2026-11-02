@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Raspored</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F6F2; --surface:#FFFFFF; --ink:#1D2926; --muted:#5F6E69;
+  --rule:#D3DDD8; --accent:#0F6B5C; --accent-ink:#FFFFFF; --danger:#B3261E;
+  --now:#E3F1EC; --off:#C5CFCB;
+  color-scheme: light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121817; --surface:#1A2220; --ink:#E3ECE8; --muted:#94A49E;
+    --rule:#2C3836; --accent:#5BC3AE; --accent-ink:#0B1513; --danger:#F2867E;
+    --now:#1E3430; --off:#3A4745; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121817; --surface:#1A2220; --ink:#E3ECE8; --muted:#94A49E;
+  --rule:#2C3836; --accent:#5BC3AE; --accent-ink:#0B1513; --danger:#F2867E;
+  --now:#1E3430; --off:#3A4745; color-scheme: dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Bricolage Grotesque", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size:1rem; line-height:1.45;
+}
+.wrap{max-width:40rem; margin:0 auto; padding:1.25rem 1rem 5rem}
+.hidden{display:none !important}
+button{font:inherit; color:inherit}
+button:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+
+.back{
+  background:none; border:0; padding:.4rem 0; margin-bottom:.75rem; cursor:pointer;
+  color:var(--accent); font-weight:600; font-size:1rem;
+}
+h1.big{margin:0; font-size:clamp(2rem, 9vw, 3rem); font-weight:800; line-height:1; letter-spacing:-.02em}
+.sub{margin:.4rem 0 1.25rem; color:var(--muted); font-size:1.05rem}
+
+/* Months */
+.sec{font-size:1.25rem; font-weight:700; margin:1.5rem 0 .6rem}
+.week{list-style:none; margin:0; padding:0; border-top:2px solid var(--ink)}
+.wday{
+  width:100%; display:grid; grid-template-columns:3.6rem 1fr; gap:.25rem; text-align:left;
+  background:none; border:0; border-bottom:1px solid var(--rule); padding:.65rem 0; cursor:pointer;
+}
+.wday:disabled{cursor:default; color:var(--off)}
+.wday .dname{font-size:.85rem; color:var(--muted); line-height:1.1}
+.wday .dnum{display:block; font-size:1.6rem; font-weight:700; line-height:1; color:var(--ink); font-variant-numeric:tabular-nums}
+.wday:disabled .dname, .wday:disabled .dnum{color:var(--off)}
+.wday.today{background:var(--now)}
+.wday.today .dnum{color:var(--accent)}
+.wday ul{list-style:none; margin:0; padding:0 .5rem 0 0}
+.wday li{padding:.1rem 0}
+.wday li b{font-weight:600; font-variant-numeric:tabular-nums; margin-right:.4rem}
+.wday .none{color:var(--muted)}
+.months{display:grid; grid-template-columns:repeat(2, 1fr); gap:.6rem; list-style:none; margin:0; padding:0}
+@media (min-width:34rem){ .months{grid-template-columns:repeat(3, 1fr)} }
+.month{
+  width:100%; text-align:left; cursor:pointer; padding:.9rem .9rem 1rem;
+  background:var(--surface); border:1px solid var(--rule); border-radius:.6rem;
+}
+.month strong{display:block; font-size:1.35rem; font-weight:700; line-height:1.1}
+.month span{display:block; color:var(--muted); font-size:.85rem; margin-top:.3rem}
+.month.current{border:2px solid var(--accent)}
+.month.current strong{color:var(--accent)}
+
+/* Month grid */
+.mhead{display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:.5rem; margin-bottom:1rem}
+.mhead .title{text-align:center}
+.nav{
+  width:2.75rem; height:2.75rem; border-radius:50%; border:1px solid var(--rule);
+  background:var(--surface); font-size:1.3rem; cursor:pointer;
+}
+.nav:disabled{opacity:.3; cursor:default}
+.wk, .grid{display:grid; grid-template-columns:repeat(7, 1fr); gap:.3rem}
+.wk div{text-align:center; color:var(--muted); font-size:.8rem; padding-bottom:.3rem}
+.cell{
+  aspect-ratio:1; border-radius:.5rem; border:1px solid var(--rule); background:var(--surface);
+  cursor:pointer; position:relative; font-size:1.1rem; font-weight:600; font-variant-numeric:tabular-nums;
+}
+.cell:disabled{background:transparent; border-color:transparent; color:var(--off); cursor:default; font-weight:400}
+.cell.today{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
+.cell.has::after{
+  content:""; position:absolute; left:50%; bottom:18%; width:.35rem; height:.35rem; margin-left:-.175rem;
+  border-radius:50%; background:var(--accent);
+}
+.cell.today.has::after{background:var(--accent-ink)}
+.blank{aspect-ratio:1}
+
+/* Day */
+.dhead{display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:.5rem; margin-bottom:1.25rem}
+.dhead .title{text-align:center; min-width:0}
+.dhead p{margin:.35rem 0 0; color:var(--muted); font-size:1.05rem}
+.slots{list-style:none; margin:0; padding:0; border-top:2px solid var(--ink)}
+.slot{display:grid; grid-template-columns:3.6rem 1fr; border-bottom:1px solid var(--rule)}
+.slot.now{background:var(--now)}
+.hour{padding:.7rem 0 .5rem; font-size:1.6rem; font-weight:600; line-height:1; font-variant-numeric:tabular-nums}
+.hour small{display:block; font-size:.72rem; font-weight:400; color:var(--muted); margin-top:.25rem}
+.slot textarea{
+  width:100%; min-height:3.6rem; resize:vertical; border:0; background:transparent;
+  color:var(--ink); font:inherit; padding:.7rem .5rem; outline:none;
+}
+.slot textarea::placeholder{color:var(--muted); opacity:.55}
+.slot textarea:focus-visible{box-shadow:inset 3px 0 0 var(--accent)}
+.entry{min-width:0; padding-bottom:.55rem}
+.entry textarea{min-height:2.8rem; padding-bottom:.3rem}
+.dur{display:flex; align-items:center; gap:.6rem; padding:0 .5rem; flex-wrap:wrap}
+.dur select{
+  font:inherit; font-size:.9rem; padding:.35rem .5rem; border:1px solid var(--rule); border-radius:.4rem;
+  background:var(--surface); color:var(--ink);
+}
+.dur select:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.dur span{color:var(--muted); font-size:.85rem}
+.slot.filled .hour{color:var(--accent)}
+.dur .warn{color:var(--danger); font-weight:600; flex-basis:100%}
+.slot.clash{background:color-mix(in srgb, var(--danger) 9%, transparent)}
+.slot.clash .hour{color:var(--danger)}
+.slot.covered textarea::placeholder{color:var(--accent); opacity:.85}
+
+.bar{display:flex; flex-wrap:wrap; gap:.6rem; align-items:center; margin-top:1.5rem}
+.btn{font-weight:600; padding:.6rem 1rem; border-radius:.5rem; cursor:pointer; border:1px solid var(--rule); background:transparent}
+.btn.danger{color:var(--danger); border-color:var(--danger)}
+.btn.solid{background:var(--accent); border-color:var(--accent); color:var(--accent-ink)}
+.safe{margin:.2rem 0; color:var(--muted)}
+.safe.ok{color:var(--accent); font-weight:600}
+.safe.warn{color:var(--danger); font-weight:600}
+.status{color:var(--muted); font-size:.85rem; min-height:1.2em; margin-top:.75rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Svi mjeseci -->
+  <section id="vMonths">
+    <h1 class="big">Raspored</h1>
+    <p class="sub" id="range"></p>
+    <h2 class="sec">Ovaj tjedan</h2>
+    <ol class="week" id="week"></ol>
+    <h2 class="sec">Kalendar</h2>
+    <ul class="months" id="months"></ul>
+    <div class="bar"><button class="btn solid" id="goToday">Otvori danas</button></div>
+    <h2 class="sec">Sigurnost podataka</h2>
+    <p class="safe" id="cloudState">Provjeravam spremanje…</p>
+    <div id="sheetForm" class="bar" style="margin-top:.6rem">
+      <input type="url" id="sheetUrl" placeholder="Link Google skripte (…/exec)" aria-label="Link Google skripte" style="flex:1; min-width:12rem; font:inherit; padding:.55rem .7rem; border:1px solid var(--rule); border-radius:.5rem; background:var(--surface); color:var(--ink)">
+      <button class="btn solid" id="sheetConnect">Spoji tablicu</button>
+    </div>
+    <div class="bar" style="margin-top:.6rem"><button class="btn hidden" id="sheetOff">Odspoji tablicu</button></div>
+    <p class="safe" id="backupState"></p>
+    <div class="bar" style="margin-top:.6rem">
+      <button class="btn" id="exportBtn">Spremi kopiju</button>
+      <button class="btn" id="importBtn">Vrati iz kopije</button>
+      <input type="file" id="importFile" accept=".json,application/json" class="hidden">
+    </div>
+    <div class="status" id="homeStatus" aria-live="polite"></div>
+  </section>
+
+  <!-- Jedan mjesec -->
+  <section id="vMonth" class="hidden">
+    <button class="back" id="toMonths">‹ Svi mjeseci</button>
+    <div class="mhead">
+      <button class="nav" id="mPrev" aria-label="Prethodni mjesec">‹</button>
+      <div class="title"><h1 class="big" id="mTitle"></h1><p class="sub" id="mYear" style="margin-bottom:0"></p></div>
+      <button class="nav" id="mNext" aria-label="Sljedeći mjesec">›</button>
+    </div>
+    <div class="wk"><div>Pon</div><div>Uto</div><div>Sri</div><div>Čet</div><div>Pet</div><div>Sub</div><div>Ned</div></div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <!-- Jedan dan -->
+  <section id="vDay" class="hidden">
+    <button class="back" id="toMonth"></button>
+    <div class="dhead">
+      <button class="nav" id="dPrev" aria-label="Prethodni dan">‹</button>
+      <div class="title"><h1 class="big" id="weekday"></h1><p id="dDate"></p></div>
+      <button class="nav" id="dNext" aria-label="Sljedeći dan">›</button>
+    </div>
+    <ol class="slots" id="slots"></ol>
+    <div class="bar">
+      <button class="btn danger" id="del">Obriši dan</button>
+      <span id="confirm" class="hidden">
+        <button class="btn danger" id="delYes">Da, obriši sve unose</button>
+        <button class="btn" id="delNo">Odustani</button>
+      </span>
+    </div>
+    <div class="status" id="status" aria-live="polite"></div>
+  </section>
+
+</div>
+<script>
+(function(){
+  const KEY = "raspored-v1";
+  const START = 6, END = 21;
+  const DAYS = ["Nedjelja","Ponedjeljak","Utorak","Srijeda","Četvrtak","Petak","Subota"];
+  const MON_N = ["Siječanj","Veljača","Ožujak","Travanj","Svibanj","Lipanj","Srpanj","Kolovoz","Rujan","Listopad","Studeni","Prosinac"];
+  const MON_G = ["siječnja","veljače","ožujka","travnja","svibnja","lipnja","srpnja","kolovoza","rujna","listopada","studenoga","prosinca"];
+  const $ = id => document.getElementById(id);
+
+  let data = load();
+  let saveTimer = null, statusTimer = null;
+
+  function load(){
+    try{
+      const p = JSON.parse(localStorage.getItem(KEY) || "null");
+      if (p && p.days && typeof p.days === "object") return p;
+    }catch(e){}
+    return {days:{}};
+  }
+  const URL_KEY = "raspored-sheets-url";
+  let sheetUrl = "";
+  try{ sheetUrl = localStorage.getItem(URL_KEY) || ""; }catch(e){}
+  let syncTimer = null, lastSync = 0, syncOk = null;
+  function save(){
+    data.updated = Date.now();
+    let ok = true;
+    try{ localStorage.setItem(KEY, JSON.stringify(data)); }catch(e){ ok = false; }
+    if (sheetUrl){ clearTimeout(syncTimer); syncTimer = setTimeout(pushSheet, 1500); }
+    return ok;
+  }
+  function toRows(){
+    const rows = [];
+    Object.keys(data.days).sort().forEach(day => {
+      const ent = data.days[day];
+      Object.keys(ent).map(Number).sort((x,y) => x-y).forEach(h => {
+        const v = typeof ent[h] === "string" ? {t:ent[h], d:0, m:0} : ent[h];
+        rows.push([day, pad(h)+":"+pad(v.m || 0), v.d || 0, v.t || ""]);
+      });
+    });
+    return rows;
+  }
+  function fromRows(rows){
+    const days = {};
+    (rows || []).forEach(r => {
+      const day = String(r[0] || "").trim(), st = String(r[1] || "").trim();
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || !/^\d{1,2}:\d{2}$/.test(st)) return;
+      const [h, m] = st.split(":").map(Number);
+      if (h < START || h >= END) return;
+      (days[day] = days[day] || {})[h] = {t:String(r[3] || ""), d:Number(r[2]) || 0, m:m};
+    });
+    return days;
+  }
+  async function pushSheet(){
+    if (!sheetUrl) return;
+    try{
+      const res = await fetch(sheetUrl, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"},
+        body: JSON.stringify({updated: data.updated || Date.now(), rows: toRows()})});
+      const out = await res.json();
+      if (!out || !out.ok) throw 0;
+      lastSync = Date.now(); setSync(true);
+    }catch(e){ setSync(false); }
+  }
+  async function pullSheet(){
+    if (!sheetUrl){ setSync(null); return; }
+    try{
+      const res = await fetch(sheetUrl);
+      const out = await res.json();
+      if (!out || !Array.isArray(out.rows)) throw 0;
+      if ((out.updated || 0) > (data.updated || 0)){
+        data.days = fromRows(out.rows);
+        data.updated = out.updated;
+        try{ localStorage.setItem(KEY, JSON.stringify(data)); }catch(e){}
+        lastSync = Date.now(); setSync(true);
+        route();
+      } else {
+        await pushSheet();
+      }
+    }catch(e){ setSync(false); }
+  }
+  function setSync(ok){
+    syncOk = ok;
+    const el = $("cloudState"); if (!el) return;
+    $("sheetForm").classList.toggle("hidden", !!sheetUrl);
+    $("sheetOff").classList.toggle("hidden", !sheetUrl);
+    if (!sheetUrl){
+      el.className = "safe warn";
+      el.textContent = "Raspored je spremljen samo na ovom uređaju. Spoji Google tablicu ili redovito spremaj kopiju.";
+    } else if (ok){
+      const t = new Date(lastSync);
+      el.className = "safe ok";
+      el.textContent = "Spojeno s Google tablicom. Zadnje spremanje u "+pad(t.getHours())+":"+pad(t.getMinutes())+".";
+    } else if (ok === false){
+      el.className = "safe warn";
+      el.textContent = "Google tablica trenutno nije dostupna. Unosi su spremljeni na uređaju i poslat će se kad veza proradi.";
+    } else {
+      el.className = "safe";
+      el.textContent = "Povezujem se s Google tablicom…";
+    }
+  }
+  function connectSheet(){
+    const v = $("sheetUrl").value.trim();
+    if (!/^https:\/\/script\.google\.com\/.+\/exec$/.test(v)){
+      homeStatus("Zalijepi link web aplikacije koji završava s /exec.");
+      return;
+    }
+    sheetUrl = v;
+    try{ localStorage.setItem(URL_KEY, v); }catch(e){}
+    $("sheetUrl").value = "";
+    setSync(null);
+    pullSheet();
+  }
+  function disconnectSheet(){
+    sheetUrl = "";
+    try{ localStorage.removeItem(URL_KEY); }catch(e){}
+    setSync(null);
+    homeStatus("Google tablica je odspojena. Podaci u tablici su ostali.");
+  }
+  function showBackup(){
+    const el = $("backupState"); if (!el) return;
+    if (!data.backup){ el.textContent = "Kopija još nije spremljena."; return; }
+    const d = new Date(data.backup);
+    el.textContent = "Zadnja kopija: "+d.getDate()+". "+MON_G[d.getMonth()]+" "+d.getFullYear()+".";
+  }
+  function homeStatus(msg){
+    $("homeStatus").textContent = msg;
+    setTimeout(() => { if ($("homeStatus").textContent === msg) $("homeStatus").textContent = ""; }, 4000);
+  }
+  async function exportData(){
+    const t = new Date();
+    const name = "raspored-"+t.getFullYear()+"-"+pad(t.getMonth()+1)+"-"+pad(t.getDate())+".json";
+    const body = JSON.stringify({app:"raspored", version:1, days:data.days}, null, 2);
+    let done = false;
+    try{
+      const dl = window.claude && typeof window.claude.use === "function" ? await window.claude.use("downloads") : null;
+      if (dl){
+        try{ await dl.save({filename:name, data:body}); done = true; }
+        catch(e){ homeStatus(e && e.code === "declined" ? "Spremanje kopije je otkazano." : "Kopiju nije moguće spremiti ovdje."); return; }
+      }
+    }catch(e){}
+    if (!done){
+      try{
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(new Blob([body], {type:"application/json"}));
+        a.download = name; document.body.append(a); a.click(); a.remove();
+        done = true;
+      }catch(e){ homeStatus("Kopiju nije moguće spremiti ovdje."); return; }
+    }
+    data.backup = Date.now(); save(); showBackup();
+    homeStatus("Kopija je spremljena kao "+name+".");
+  }
+  function importData(file){
+    const r = new FileReader();
+    r.onload = () => {
+      try{
+        const p = JSON.parse(r.result);
+        if (!p || !p.days || typeof p.days !== "object") throw 0;
+        data.days = p.days;
+        save(); route();
+        homeStatus("Raspored je vraćen iz kopije.");
+      }catch(e){ homeStatus("Ta datoteka nije kopija rasporeda."); }
+    };
+    r.onerror = () => homeStatus("Datoteku nije moguće pročitati.");
+    r.readAsText(file);
+  }
+
+  const pad = n => String(n).padStart(2,"0");
+  const iso = d => d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+  const parse = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y, m-1, d||1); };
+  const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate()+n); return x; };
+
+  // Raspon: od danas do istog datuma za godinu dana
+  function range(){
+    const t = new Date(); t.setHours(0,0,0,0);
+    const end = new Date(t); end.setFullYear(end.getFullYear()+1);
+    return {start:t, end:end};
+  }
+  function inRange(s){ const r = range(); const d = parse(s); return d >= r.start && d <= r.end; }
+  function monthList(){
+    const r = range(); const out = [];
+    let y = r.start.getFullYear(), m = r.start.getMonth();
+    while (y < r.end.getFullYear() || (y === r.end.getFullYear() && m <= r.end.getMonth())){
+      out.push(y+"-"+pad(m+1)); m++; if (m > 11){ m = 0; y++; }
+    }
+    return out;
+  }
+  const hasEntries = s => data.days[s] && Object.keys(data.days[s]).length > 0;
+  const fullDate = d => d.getDate()+". "+MON_G[d.getMonth()]+" "+d.getFullYear()+".";
+
+  function show(id){
+    ["vMonths","vMonth","vDay"].forEach(v => $(v).classList.toggle("hidden", v !== id));
+    window.scrollTo(0,0);
+  }
+
+  /* ---- Svi mjeseci ---- */
+  function renderMonths(){
+    const r = range();
+    $("range").textContent = "Od "+fullDate(r.start)+" do "+fullDate(r.end);
+    const fmt = m => pad(Math.floor(m/60) % 24)+":"+pad(m%60);
+    const DSHORT = ["Ned","Pon","Uto","Sri","Čet","Pet","Sub"];
+    const wk = $("week"); wk.innerHTML = "";
+    const daysLeft = 7 - ((r.start.getDay()+6) % 7);
+    const todayS = iso(r.start);
+    for (let k = 0; k < daysLeft; k++){
+      const d = addDays(r.start, k), s = iso(d);
+      const li = document.createElement("li");
+      const b = document.createElement("button");
+      b.className = "wday" + (s === todayS ? " today" : "");
+      const left = document.createElement("div");
+      left.innerHTML = '<span class="dname">'+DSHORT[d.getDay()]+'</span><span class="dnum">'+d.getDate()+'.</span>';
+      const right = document.createElement("div");
+      if (false){
+        b.disabled = true;
+        right.innerHTML = '<span class="none" style="color:var(--off)">Prošlo</span>';
+      } else {
+        const ent = data.days[s] || {};
+        const items = Object.keys(ent).map(h => {
+          const v = typeof ent[h] === "string" ? {t:ent[h], d:0, m:0} : ent[h];
+          const st = (+h)*60 + (v.m || 0);
+          return {st, end: v.d ? st + v.d : 0, t: (v.t || "").trim() || "Termin"};
+        }).sort((a,b) => a.st - b.st);
+        if (!items.length) right.innerHTML = '<span class="none">Nema termina</span>';
+        else {
+          const ul = document.createElement("ul");
+          items.forEach(it => {
+            const x = document.createElement("li");
+            const bt = document.createElement("b");
+            bt.textContent = fmt(it.st) + (it.end ? "–"+fmt(it.end) : "");
+            x.append(bt, document.createTextNode(it.t.split("\n")[0]));
+            ul.append(x);
+          });
+          right.append(ul);
+        }
+        b.onclick = () => nav("d-"+s);
+        b.setAttribute("aria-label", DAYS[d.getDay()]+", "+fullDate(d));
+      }
+      b.append(left, right); li.append(b); wk.append(li);
+    }
+    const ul = $("months"); ul.innerHTML = "";
+    const cur = iso(r.start).slice(0,7);
+    monthList().forEach(key => {
+      const [y,m] = key.split("-").map(Number);
+      const n = Object.keys(data.days).filter(s => s.startsWith(key) && inRange(s) && hasEntries(s)).length;
+      const li = document.createElement("li");
+      const b = document.createElement("button");
+      b.className = "month" + (key === cur ? " current" : "");
+      b.innerHTML = "<strong>"+MON_N[m-1]+"</strong><span>"+y+(n ? " · "+n+(n===1?" dan":" dana")+" s unosima" : "")+"</span>";
+      b.onclick = () => nav("m-"+key);
+      li.append(b); ul.append(li);
+    });
+    document.title = "Raspored";
+    showBackup();
+    show("vMonths");
+  }
+
+  /* ---- Mjesec ---- */
+  function renderMonth(key){
+    const list = monthList();
+    if (!list.includes(key)) return nav("");
+    const [y,m] = key.split("-").map(Number);
+    $("mTitle").textContent = MON_N[m-1];
+    $("mYear").textContent = y;
+    const i = list.indexOf(key);
+    $("mPrev").disabled = i <= 0;  $("mPrev").onclick = () => nav("m-"+list[i-1]);
+    $("mNext").disabled = i >= list.length-1; $("mNext").onclick = () => nav("m-"+list[i+1]);
+
+    const grid = $("grid"); grid.innerHTML = "";
+    const first = new Date(y, m-1, 1);
+    const offset = (first.getDay()+6) % 7;
+    for (let k = 0; k < offset; k++){ const b = document.createElement("div"); b.className = "blank"; grid.append(b); }
+    const days = new Date(y, m, 0).getDate();
+    const today = iso(range().start);
+    for (let d = 1; d <= days; d++){
+      const s = y+"-"+pad(m)+"-"+pad(d);
+      const c = document.createElement("button");
+      c.className = "cell" + (s === today ? " today" : "") + (hasEntries(s) ? " has" : "");
+      c.textContent = d;
+      if (!inRange(s)) c.disabled = true;
+      else { c.onclick = () => nav("d-"+s); c.setAttribute("aria-label", fullDate(parse(s))); }
+      grid.append(c);
+    }
+    document.title = MON_N[m-1]+" "+y;
+    show("vMonth");
+  }
+
+  /* ---- Dan ---- */
+  function renderDay(s){
+    if (!inRange(s)) return nav("");
+    hideConfirm();
+    const d = parse(s);
+    const mKey = s.slice(0,7);
+    $("toMonth").textContent = "‹ "+MON_N[d.getMonth()]+" "+d.getFullYear();
+    $("toMonth").onclick = () => nav("m-"+mKey);
+    $("weekday").textContent = DAYS[d.getDay()];
+    $("dDate").textContent = fullDate(d);
+    const prev = iso(addDays(d,-1)), next = iso(addDays(d,1));
+    $("dPrev").disabled = !inRange(prev); $("dPrev").onclick = () => nav("d-"+prev);
+    $("dNext").disabled = !inRange(next); $("dNext").onclick = () => nav("d-"+next);
+
+    const isToday = s === iso(range().start);
+    const nowH = new Date().getHours();
+    const entries = data.days[s] || {};
+    const DUR = [15,30,45,60,75,90,105,120,135,150];
+    const durText = n => { const hh = Math.floor(n/60), mm = n%60; return (hh ? hh+" h" : "") + (hh && mm ? " " : "") + (mm ? mm+" min" : ""); };
+    const ol = $("slots"); ol.innerHTML = "";
+    const refs = {};
+    const fmt = m => pad(Math.floor(m/60) % 24)+":"+pad(m%60);
+    const startOf = h => h*60 + (+refs[h].min.value);
+    const used = r => !!(r.ta.value.trim() || +r.sel.value);
+    const checkOverlaps = () => {
+      for (let h = START; h < END; h++){
+        const r = refs[h];
+        r.li.classList.remove("clash","covered");
+        r.warn.textContent = "";
+        r.ta.placeholder = "Slobodno";
+      }
+      for (let h = START; h < END; h++){
+        const a = refs[h], d = +a.sel.value;
+        if (!d) continue;
+        const st = startOf(h), end = st + d;
+        for (let h2 = h+1; h2 < END && h2*60 < end; h2++){
+          const b = refs[h2];
+          if (used(b)){
+            if (startOf(h2) < end){
+              a.li.classList.add("clash"); b.li.classList.add("clash");
+              a.warn.textContent = "Preklapa se s terminom u "+fmt(startOf(h2));
+              b.warn.textContent = "Preklapa se s terminom u "+fmt(st)+" (traje do "+fmt(end)+")";
+            }
+          } else {
+            b.li.classList.add("covered");
+            b.ta.placeholder = "Zauzeto do "+fmt(end)+" (termin u "+fmt(st)+")";
+          }
+        }
+      }
+    };
+    for (let h = START; h < END; h++){
+      const raw = entries[h];
+      const e = typeof raw === "string" ? {t:raw, d:0} : (raw || {t:"", d:0});
+      const li = document.createElement("li");
+      li.className = "slot" + (isToday && nowH === h ? " now" : "") + (e.t || e.d ? " filled" : "");
+      const lab = document.createElement("div");
+      lab.className = "hour";
+      lab.innerHTML = pad(h)+"<small>"+pad(h)+":"+pad(e.m || 0)+"</small>";
+      const min = document.createElement("select");
+      min.setAttribute("aria-label", "Početak termina");
+      min.innerHTML = [0,15,30,45].map(m => '<option value="'+m+'">'+pad(h)+":"+pad(m)+'</option>').join("");
+      min.value = String([0,15,30,45].includes(e.m) ? e.m : 0);
+      const box = document.createElement("div");
+      box.className = "entry";
+      const ta = document.createElement("textarea");
+      ta.value = e.t || "";
+      ta.placeholder = "Slobodno";
+      ta.setAttribute("aria-label", "Termin u "+pad(h)+":00");
+      const row = document.createElement("div");
+      row.className = "dur";
+      const sel = document.createElement("select");
+      sel.setAttribute("aria-label", "Trajanje termina u "+pad(h)+":00");
+      sel.innerHTML = '<option value="0">Trajanje</option>' + DUR.map(n => '<option value="'+n+'">'+durText(n)+'</option>').join("");
+      sel.value = String(DUR.includes(e.d) ? e.d : 0);
+      const endTxt = document.createElement("span");
+      const showEnd = () => {
+        const d = +sel.value;
+        if (!d) { endTxt.textContent = ""; return; }
+        const tot = h*60 + (+min.value) + d;
+        endTxt.textContent = "Završava u "+pad(Math.floor(tot/60) % 24)+":"+pad(tot%60);
+      };
+      showEnd();
+      const warn = document.createElement("span");
+      warn.className = "warn";
+      refs[h] = {li, ta, sel, warn, min};
+      const update = () => {
+        const t = ta.value, d = +sel.value, m = +min.value;
+        lab.querySelector("small").textContent = pad(h)+":"+pad(m);
+        if (!data.days[s]) data.days[s] = {};
+        if (t.trim() || d) data.days[s][h] = {t:t, d:d, m:m}; else delete data.days[s][h];
+        if (!Object.keys(data.days[s]).length) delete data.days[s];
+        li.classList.toggle("filled", !!(t.trim() || d));
+        showEnd();
+        checkOverlaps();
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(() => status(save() ? "Spremljeno." : "Spremanje nije uspjelo."), 400);
+      };
+      ta.addEventListener("input", update);
+      sel.addEventListener("change", update);
+      min.addEventListener("change", update);
+      row.append(min, sel, endTxt, warn);
+      box.append(ta, row);
+      li.append(lab, box); ol.append(li);
+    }
+    checkOverlaps();
+    $("del").onclick = () => { $("del").classList.add("hidden"); $("confirm").classList.remove("hidden"); $("delNo").focus(); };
+    $("delYes").onclick = () => { delete data.days[s]; save(); renderDay(s); status("Dan je obrisan."); };
+    document.title = DAYS[d.getDay()]+", "+fullDate(d);
+    show("vDay");
+  }
+
+  function hideConfirm(){ $("confirm").classList.add("hidden"); $("del").classList.remove("hidden"); }
+  function status(msg){
+    $("status").textContent = msg; clearTimeout(statusTimer);
+    if (msg) statusTimer = setTimeout(() => $("status").textContent = "", 2500);
+  }
+
+  /* ---- Navigacija ---- */
+  function nav(h){
+    if (h) location.hash = h;
+    else { history.pushState(null, "", location.pathname + location.search); route(); }
+  }
+  function prune(){
+    const today = iso(range().start);
+    let changed = false;
+    Object.keys(data.days).forEach(k => { if (k < today) { delete data.days[k]; changed = true; } });
+    if (changed) save();
+  }
+  function route(){
+    prune();
+    const h = location.hash;
+    let m;
+    if ((m = h.match(/^#m-(\d{4}-\d{2})$/))) renderMonth(m[1]);
+    else if ((m = h.match(/^#d-(\d{4}-\d{2}-\d{2})$/))) renderDay(m[1]);
+    else renderMonths();
+  }
+  $("toMonths").onclick = () => nav("");
+  $("goToday").onclick = () => nav("d-"+iso(range().start));
+  window.addEventListener("hashchange", route);
+  window.addEventListener("popstate", route);
+  $("exportBtn").onclick = exportData;
+  $("importBtn").onclick = () => $("importFile").click();
+  $("importFile").onchange = e => { const f = e.target.files[0]; if (f) importData(f); e.target.value = ""; };
+  try{ if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); }catch(e){}
+  route();
+  showBackup();
+  $("sheetConnect").onclick = connectSheet;
+  $("sheetOff").onclick = disconnectSheet;
+  setSync(null);
+  pullSheet();
+  window.addEventListener("online", () => { if (sheetUrl) pushSheet(); });
+})();
+</script>
+</body>
+</html>
