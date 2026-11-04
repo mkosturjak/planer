@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Raspored</title>
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-title" content="Raspored">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#F2E9E0">
+<meta name="color-scheme" content="light only">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
@@ -13,30 +20,16 @@
   --bg:#F2E9E0; --surface:#FDFAF6; --fill:#EADCCF; --ink:#3B2A21; --muted:#735A4C;
   --rule:#E6D7CA; --accent:#87583C; --accent-ink:#FFFFFF; --danger:#9E3A2A;
   --now:#F6ECE2; --off:#A8968A; --bar:rgba(242,233,224,.82);
+  --priv:#8B2F68; --priv-bg:#F4DCEA;
   --radius:12px;
-  color-scheme: light;
+  color-scheme: light only;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);
   padding-bottom:env(safe-area-inset-bottom,0px);
 }
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg:#1A1411; --surface:#2A211C; --fill:#3A2E27; --ink:#F3E8DE; --muted:#B9A293;
-    --rule:#3B2F28; --accent:#D8A783; --accent-ink:#2A1C14; --danger:#EF8C78;
-    --now:#33271F; --off:#6B5A50; --bar:rgba(26,20,17,.82);
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#1A1411; --surface:#2A211C; --fill:#3A2E27; --ink:#F3E8DE; --muted:#B9A293;
-  --rule:#3B2F28; --accent:#D8A783; --accent-ink:#2A1C14; --danger:#EF8C78;
-  --now:#33271F; --off:#6B5A50; --bar:rgba(26,20,17,.82);
-  color-scheme: dark;
-}
 @media (prefers-contrast: more){
   :root{ --muted:#5A4438; --rule:#BFA894; --accent:#6E4329; }
-  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --muted:#D6C2B4; --rule:#6A5648; --accent:#ECC3A3; } }
-}
+  }
 *,*::before,*::after{box-sizing:inherit}
 html{height:100%; touch-action:manipulation; scroll-padding-top:calc(env(safe-area-inset-top,0px) + 3.5rem); -webkit-text-size-adjust:100%}
 body{
@@ -158,11 +151,66 @@ h1.big{
   padding-right:1.6rem; background-repeat:no-repeat; background-position:right .55rem center; background-size:.6rem;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23735A4C' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]) .dur select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23B9A293' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
-}
 .dur span{color:var(--muted); font-size:.75rem}
 .dur .warn{color:var(--danger); font-weight:600; flex-basis:100%}
+.clr{
+  position:absolute; top:.3rem; right:.6rem; width:30px; height:30px; border-radius:50%; border:0; cursor:pointer;
+  background:var(--fill); color:var(--muted); font-size:1.15rem; line-height:1; display:grid; place-items:center;
+}
+.slot:not(.filled) .clr, .slot:not(.filled) .shr{display:none}
+.clr.confirm{width:auto; padding:0 .75rem; border-radius:999px; font-size:.8125rem; font-weight:700; background:var(--danger) !important; color:#fff !important}
+.slot.confirming .shr{display:none}
+.shr{
+  position:absolute; top:.3rem; right:calc(.6rem + 36px); width:30px; height:30px; border-radius:50%; border:0; cursor:pointer;
+  background:var(--fill); color:var(--accent); display:grid; place-items:center;
+}
+.entry{position:relative}
+.slot.filled textarea{padding-right:4.9rem}
+.clr:active{background:color-mix(in srgb, var(--danger) 18%, var(--fill)); color:var(--danger)}
+
+/* Usluge */
+.slist li button.go{color:var(--accent)}
+.slist li button.muted{color:var(--muted)}
+.slist li .field{flex:1; min-height:36px; padding:.35rem .6rem; background:var(--bg)}
+.sform{display:flex; gap:.5rem}
+.sform .field{flex:1; min-width:0}
+.dur select.srv{max-width:11rem; text-overflow:ellipsis}
+
+/* Godišnji odmor */
+#vMonths{position:relative}
+.ver{position:absolute; top:.55rem; right:0; font-size:.75rem; color:var(--muted); font-variant-numeric:tabular-nums}
+.vlist{list-style:none; margin:0 0 .6rem; padding:0; background:var(--surface); border-radius:var(--radius); overflow:hidden}
+.vlist:empty{display:none}
+.vlist li{display:flex; align-items:center; gap:.5rem; min-height:44px; padding:.35rem .5rem .35rem 1rem; font-size:.9375rem}
+.vlist li + li{border-top:.5px solid var(--rule)}
+.vlist li span{flex:1}
+.vlist li small{color:var(--muted); margin-left:.35rem}
+.vlist button{min-height:44px; padding:0 .75rem; border:0; background:none; color:var(--danger); cursor:pointer; font-size:.9375rem}
+.vform{display:grid; grid-template-columns:1fr 1fr auto; gap:.5rem; align-items:end}
+.vform label{display:flex; flex-direction:column; gap:.2rem; font-size:.8125rem; color:var(--muted); min-width:0}
+.vform .field{min-width:0; width:100%; font-size:.9375rem}
+.cell.vac{color:var(--muted);
+  background:linear-gradient(to top right, transparent calc(50% - .75px), var(--muted) calc(50% - .75px), var(--muted) calc(50% + .75px), transparent calc(50% + .75px)), var(--fill)}
+.cell.vac.today{color:var(--accent-ink); background:var(--accent)}
+.vactag{color:var(--accent); font-style:italic}
+#vDay.sun #weekday, #vDay.sun .slot .hour{color:var(--danger)}
+/* Privatni termini */
+.priv{display:inline-flex; align-items:center; gap:.3rem; min-height:32px; font-size:.8125rem; color:var(--muted); cursor:pointer}
+.priv input{width:1.05rem; height:1.05rem; margin:0; accent-color:var(--priv)}
+.slot.private{background:var(--priv-bg); box-shadow:inset 5px 0 0 var(--priv)}
+.slot.private .hour, #vDay.sun .slot.private .hour{color:var(--priv); font-weight:800}
+.slot.private textarea{color:var(--priv); font-weight:600}
+.slot.private .dur select{background-color:color-mix(in srgb, var(--priv) 14%, #fff)}
+.slot.private .clr, .slot.private .shr{background:color-mix(in srgb, var(--priv) 14%, #fff); color:var(--priv)}
+.slot.private .priv{background:var(--priv); color:#fff; padding:0 .6rem 0 .45rem; border-radius:999px; font-weight:600}
+.slot.private .priv input{accent-color:#fff}
+.wday li.p, .wday li.p b{color:var(--priv); font-weight:700}
+.wday li.p::before{content:""; display:inline-block; width:.5rem; height:.5rem; border-radius:50%; background:var(--priv); margin-right:.35rem; vertical-align:.08em}
+.holtag{color:var(--danger); font-weight:600}
+.cell.we:not(:disabled):not(.today):not(.vac){color:var(--danger); font-weight:400}
+.cell.hol:not(:disabled):not(.today):not(.vac){color:var(--danger); font-weight:700; box-shadow:inset 0 0 0 1.5px color-mix(in srgb, var(--danger) 45%, transparent)}
+.wk div:nth-child(6), .wk div:nth-child(7){color:var(--danger)}
+.wday.off:not(.today) .dname, .wday.off:not(.today) .dnum{color:var(--danger)}
 
 /* Sigurnost podataka */
 .safe{margin:.25rem 0; color:var(--muted); font-size:.9375rem}
@@ -189,11 +237,20 @@ h1.big{
   <!-- Svi mjeseci -->
   <section id="vMonths">
     <h1 class="big">Raspored</h1>
+    <span class="ver" id="ver"></span>
     <p class="pill" id="syncPill"></p>
     <h2 class="sec">Ovaj tjedan</h2>
     <ol class="week" id="week"></ol>
     <h2 class="sec">Kalendar</h2>
     <ul class="months" id="months"></ul>
+    <h2 class="sec">Godišnji odmor</h2>
+    <ul class="vlist" id="vacList"></ul>
+    <div class="vform">
+      <label>Od<input type="date" id="vacFrom" class="field"></label>
+      <label>Do<input type="date" id="vacTo" class="field"></label>
+      <button class="btn solid" id="vacAdd">Dodaj</button>
+    </div>
+    <div class="status" id="vacStatus" aria-live="polite"></div>
     <h2 class="sec">Sigurnost podataka</h2>
     <p class="safe" id="cloudState">Provjeravam spremanje…</p>
     <div id="sheetForm" class="bar" style="margin-top:.6rem">
@@ -202,6 +259,13 @@ h1.big{
     </div>
     <div class="bar" style="margin-top:.6rem"><button class="btn hidden" id="sheetOff">Odspoji tablicu</button></div>
     <div class="status" id="homeStatus" aria-live="polite"></div>
+    <h2 class="sec">Usluge</h2>
+    <ul class="vlist slist" id="srvList"></ul>
+    <div class="sform">
+      <input type="text" id="srvName" class="field" placeholder="Naziv nove usluge" aria-label="Naziv nove usluge" maxlength="60">
+      <button class="btn solid" id="srvAdd">Dodaj</button>
+    </div>
+    <div class="status" id="srvStatus" aria-live="polite"></div>
   </section>
 
   <!-- Jedan mjesec -->
@@ -231,6 +295,8 @@ h1.big{
 </div>
 <script>
 (function(){
+  // Verzija = datum i vrijeme izrade koda, oblik v.dM.Hm (dan, mjesec . sat, minute)
+  const APP_VERSION = "v.411.2213"; // 4. 11. u 22:13
   const KEY = "raspored-v1";
   const START = 6, END = 21;
   const DAYS = ["Nedjelja","Ponedjeljak","Utorak","Srijeda","Četvrtak","Petak","Subota"];
@@ -252,11 +318,12 @@ h1.big{
   let sheetUrl = "";
   try{ sheetUrl = localStorage.getItem(URL_KEY) || ""; }catch(e){}
   let syncTimer = null, lastSync = 0, syncOk = null;
+  function persist(){ try{ localStorage.setItem(KEY, JSON.stringify(data)); }catch(e){} }
   function save(){
     data.updated = Date.now();
     let ok = true;
     try{ localStorage.setItem(KEY, JSON.stringify(data)); }catch(e){ ok = false; }
-    if (sheetUrl){ clearTimeout(syncTimer); syncTimer = setTimeout(pushSheet, 1500); }
+    if (sheetUrl){ clearTimeout(syncTimer); syncTimer = setTimeout(() => { syncTimer = null; pushSheet(); }, 1500); }
     return ok;
   }
   function toRows(){
@@ -265,7 +332,7 @@ h1.big{
       const ent = data.days[day];
       Object.keys(ent).map(Number).sort((x,y) => x-y).forEach(h => {
         const v = typeof ent[h] === "string" ? {t:ent[h], d:0, m:0} : ent[h];
-        rows.push([day, pad(h)+":"+pad(v.m || 0), v.d || 0, v.t || ""]);
+        rows.push([day, pad(h)+":"+pad(v.m || 0), v.d || 0, v.t || "", v.p ? "da" : "", v.u || ""]);
       });
     });
     return rows;
@@ -278,18 +345,64 @@ h1.big{
       const [h, m] = st.split(":").map(Number);
       if (h < START || h >= END) return;
       (days[day] = days[day] || {})[h] = {t:String(r[3] || ""), d:Number(r[2]) || 0, m:m};
+      if (/^(da|true|1|x)$/i.test(String(r[4] || "").trim())) days[day][h].p = true;
+      if (String(r[5] || "").trim()) days[day][h].u = String(r[5]).trim();
     });
     return days;
   }
+  let pushing = false, pushAgain = false;
+  function mergeRemote(rows, version, vacations, services){
+    const remote = fromRows(rows);
+    const dirty = data.dirty || {};
+    if (Array.isArray(services) && !dirty.srv){
+      data.srv = services.map(x => String(x).trim()).filter(Boolean);
+    }
+    if (Array.isArray(vacations) && !dirty.vac){
+      data.vac = vacations.filter(v => v && /^\d{4}-\d{2}-\d{2}$/.test(v.od) && /^\d{4}-\d{2}-\d{2}$/.test(v.do));
+    }
+    Object.keys(dirty).forEach(key => {
+      if (key === "vac" || key === "srv") return;
+      const [day, h] = key.split("|");
+      if (h === undefined){
+        if (data.days[day]) remote[day] = data.days[day]; else delete remote[day];
+        return;
+      }
+      const local = data.days[day] && data.days[day][h];
+      if (local){ (remote[day] = remote[day] || {})[h] = local; }
+      else if (remote[day]){ delete remote[day][h]; if (!Object.keys(remote[day]).length) delete remote[day]; }
+    });
+    const today = iso(range().start);
+    Object.keys(remote).forEach(k => { if (k < today) delete remote[k]; });
+    data.days = remote;
+    data.base = version;
+    persist();
+  }
   async function pushSheet(){
     if (!sheetUrl) return;
+    if (pushing){ pushAgain = true; return; }
+    pushing = true;
     try{
-      const res = await fetch(sheetUrl, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"},
-        body: JSON.stringify({updated: data.updated || Date.now(), rows: toRows()})});
-      const out = await res.json();
-      if (!out || !out.ok) throw 0;
-      lastSync = Date.now(); setSync(true);
+      for (let i = 0; i < 3; i++){
+        const sent = Object.assign({}, data.dirty || {});
+        const res = await fetch(sheetUrl, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"},
+          body: JSON.stringify({base: data.base || 0, rows: toRows(), vacations: data.vac || [], services: data.srv || []})});
+        const out = await res.json();
+        if (out && out.ok){
+          data.base = out.updated || data.base;
+          Object.keys(sent).forEach(k => delete data.dirty[k]);
+          persist(); lastSync = Date.now(); setSync(true);
+          break;
+        }
+        if (out && out.conflict){
+          mergeRemote(out.rows, out.updated, out.vacations, out.services);
+          refreshIfIdle();
+          continue;
+        }
+        throw 0;
+      }
     }catch(e){ setSync(false); }
+    pushing = false;
+    if (pushAgain){ pushAgain = false; pushSheet(); }
   }
   async function pullSheet(){
     if (!sheetUrl){ setSync(null); return; }
@@ -297,16 +410,37 @@ h1.big{
       const res = await fetch(sheetUrl);
       const out = await res.json();
       if (!out || !Array.isArray(out.rows)) throw 0;
-      if ((out.updated || 0) > (data.updated || 0)){
-        data.days = fromRows(out.rows);
-        data.updated = out.updated;
-        try{ localStorage.setItem(KEY, JSON.stringify(data)); }catch(e){}
-        lastSync = Date.now(); setSync(true);
-        route();
-      } else {
-        await pushSheet();
+      const version = out.updated || 0;
+      if (!data.base && !version && Object.keys(data.days).length){
+        data.dirty = data.dirty || {};
+        Object.keys(data.days).forEach(k => data.dirty[k] = true);
       }
+      if (!data.base && !version && (data.vac || []).length){
+        (data.dirty = data.dirty || {}).vac = true;
+      }
+      if (!data.base && !version && (data.srv || []).length){
+        (data.dirty = data.dirty || {}).srv = true;
+      }
+      if (version > (data.base || 0)){
+        mergeRemote(out.rows, version, out.vacations, out.services);
+        refreshIfIdle();
+      }
+      lastSync = Date.now(); setSync(true);
+      if (data.dirty && Object.keys(data.dirty).length) await pushSheet();
     }catch(e){ setSync(false); }
+  }
+  let lastInput = 0, refreshTimer = null;
+  function refreshIfIdle(){
+    // Ne osvježavaj ekran dok korisnik upravo tipka; pokušaj malo kasnije.
+    clearTimeout(refreshTimer);
+    const wait = 3000 - (Date.now() - lastInput);
+    if (wait > 0){ refreshTimer = setTimeout(refreshIfIdle, wait); return; }
+    const a = document.activeElement;
+    const keep = a && a.getAttribute ? a.getAttribute("aria-label") : null;
+    const y = window.scrollY;
+    route();
+    window.scrollTo(0, y);
+    if (keep){ const el = document.querySelector('[aria-label="'+keep+'"]'); if (el) el.focus({preventScroll:true}); }
   }
   function setSync(ok){
     syncOk = ok;
@@ -421,6 +555,29 @@ h1.big{
     }
     return out;
   }
+  /* Hrvatski blagdani i neradni dani (Zakon o blagdanima, od 2020.) */
+  const holCache = {};
+  function holidays(y){
+    if (holCache[y]) return holCache[y];
+    // Uskrs po gregorijanskom kalendaru
+    const a = y % 19, b = Math.floor(y/100), c = y % 100, d = Math.floor(b/4), e = b % 4;
+    const f = Math.floor((b+8)/25), g = Math.floor((b-f+1)/3), h = (19*a+b-d-g+15) % 30;
+    const i = Math.floor(c/4), k = c % 4, l = (32+2*e+2*i-h-k) % 7, m = Math.floor((a+11*h+22*l)/451);
+    const em = Math.floor((h+l-7*m+114)/31), ed = ((h+l-7*m+114) % 31) + 1;
+    const easter = new Date(y, em-1, ed);
+    const map = {};
+    const fix = (mo, da, name) => map[y+"-"+pad(mo)+"-"+pad(da)] = name;
+    fix(1,1,"Nova godina"); fix(1,6,"Bogojavljenje"); fix(5,1,"Praznik rada"); fix(5,30,"Dan državnosti");
+    fix(6,22,"Dan antifašističke borbe"); fix(8,5,"Dan pobjede i domovinske zahvalnosti"); fix(8,15,"Velika Gospa");
+    fix(11,1,"Svi sveti"); fix(11,18,"Dan sjećanja na žrtve Domovinskog rata"); fix(12,25,"Božić"); fix(12,26,"Sveti Stjepan");
+    map[iso(easter)] = "Uskrs";
+    map[iso(addDays(easter,1))] = "Uskrsni ponedjeljak";
+    map[iso(addDays(easter,60))] = "Tijelovo";
+    return holCache[y] = map;
+  }
+  const holiday = s => holidays(+s.slice(0,4))[s] || "";
+  const isWeekend = s => { const g = parse(s).getDay(); return g === 0 || g === 6; };
+  const isVac = s => (data.vac || []).some(v => s >= v.od && s <= v.do);
   const hasEntries = s => data.days[s] && Object.keys(data.days[s]).length > 0;
   const fullDate = d => d.getDate()+". "+MON_G[d.getMonth()]+" "+d.getFullYear()+".";
 
@@ -441,7 +598,7 @@ h1.big{
       const d = addDays(r.start, k), s = iso(d);
       const li = document.createElement("li");
       const b = document.createElement("button");
-      b.className = "wday" + (s === todayS ? " today" : "");
+      b.className = "wday" + (s === todayS ? " today" : "") + (holiday(s) || isWeekend(s) ? " off" : "");
       const left = document.createElement("div");
       left.innerHTML = '<span class="dname">'+DSHORT[d.getDay()]+'</span><span class="dnum">'+d.getDate()+'.</span>';
       const right = document.createElement("div");
@@ -453,15 +610,19 @@ h1.big{
         const items = Object.keys(ent).map(h => {
           const v = typeof ent[h] === "string" ? {t:ent[h], d:0, m:0} : ent[h];
           const st = (+h)*60 + (v.m || 0);
-          return {st, end: v.d ? st + v.d : 0, t: (v.t || "").trim() || "Termin"};
+          const tt = (v.t || "").trim().split("\n")[0];
+          return {st, end: v.d ? st + v.d : 0, t: v.u ? v.u + (tt ? " · " + tt : "") : (tt || "Termin"), p: !!v.p};
         }).sort((a,b) => a.st - b.st);
-        if (!items.length) right.innerHTML = '<span class="none">Nema termina</span>';
+        if (holiday(s)){ const t = document.createElement("div"); t.className = "holtag"; t.textContent = holiday(s); right.append(t); }
+        if (isVac(s)){ const t = document.createElement("div"); t.className = "vactag"; t.textContent = "Godišnji odmor"; right.append(t); }
+        if (!items.length && !holiday(s) && !isVac(s)) right.innerHTML = '<span class="none">' + (isWeekend(s) ? "Vikend" : "Nema termina") + '</span>';
         else {
           const ul = document.createElement("ul");
           items.forEach(it => {
             const x = document.createElement("li");
             const bt = document.createElement("b");
             bt.textContent = fmt(it.st) + (it.end ? "–"+fmt(it.end) : "");
+            if (it.p) x.className = "p";
             x.append(bt, document.createTextNode(it.t.split("\n")[0]));
             ul.append(x);
           });
@@ -484,9 +645,120 @@ h1.big{
       b.onclick = () => nav("m-"+key);
       li.append(b); ul.append(li);
     });
+    renderVac();
+    renderSrv();
     document.title = "Raspored";
     showBackup();
     show("vMonths");
+  }
+
+  /* ---- Godišnji odmor ---- */
+  const shortDate = s => { const d = parse(s); return d.getDate()+". "+(d.getMonth()+1)+". "+d.getFullYear()+"."; };
+  function renderVac(){
+    const r = range(), min = iso(r.start), max = iso(r.end);
+    ["vacFrom","vacTo"].forEach(id => { $(id).min = min; $(id).max = max; });
+    const ul = $("vacList"); ul.innerHTML = "";
+    (data.vac || []).slice().sort((a,b) => a.od < b.od ? -1 : 1).forEach(v => {
+      const n = Math.round((parse(v.do) - parse(v.od)) / 86400000) + 1;
+      const li = document.createElement("li");
+      const t = document.createElement("span");
+      t.textContent = shortDate(v.od) + " – " + shortDate(v.do);
+      const sm = document.createElement("small");
+      let work = 0;
+      for (let x = parse(v.od); x <= parse(v.do); x = addDays(x, 1)){ const k = iso(x); if (!isWeekend(k) && !holiday(k)) work++; }
+      sm.textContent = n + (n === 1 ? " dan" : " dana") + " · " + work + (work === 1 ? " radni" : " radnih");
+      t.append(sm);
+      const b = document.createElement("button");
+      b.textContent = "Ukloni";
+      b.setAttribute("aria-label", "Ukloni godišnji " + t.textContent);
+      b.onclick = () => {
+        data.vac = data.vac.filter(x => !(x.od === v.od && x.do === v.do));
+        (data.dirty = data.dirty || {}).vac = true;
+        save(); renderMonths();
+      };
+      li.append(t, b); ul.append(li);
+    });
+  }
+  function addVac(){
+    const od = $("vacFrom").value, dd = $("vacTo").value || od;
+    const msg = m => { $("vacStatus").textContent = m; setTimeout(() => { if ($("vacStatus").textContent === m) $("vacStatus").textContent = ""; }, 3500); };
+    if (!od){ msg("Odaberi datum početka."); return; }
+    if (dd < od){ msg("Datum završetka ne može biti prije početka."); return; }
+    data.vac = data.vac || [];
+    data.vac.push({od: od, do: dd});
+    (data.dirty = data.dirty || {}).vac = true;
+    save();
+    $("vacFrom").value = ""; $("vacTo").value = "";
+    renderMonths();
+    msg("Godišnji je dodan.");
+  }
+
+  /* ---- Usluge ---- */
+  let srvEditing = null, srvConfirm = null;
+  function srvMsg(m){
+    $("srvStatus").textContent = m;
+    setTimeout(() => { if ($("srvStatus").textContent === m) $("srvStatus").textContent = ""; }, 3500);
+  }
+  function srvCommit(){
+    (data.dirty = data.dirty || {}).srv = true;
+    save();
+  }
+  function renameInEntries(oldN, newN){
+    Object.keys(data.days).forEach(day => {
+      Object.keys(data.days[day]).forEach(h => {
+        const v = data.days[day][h];
+        if (v && typeof v === "object" && v.u === oldN){ v.u = newN; (data.dirty = data.dirty || {})[day+"|"+h] = true; }
+      });
+    });
+  }
+  function renderSrv(){
+    const ul = $("srvList"); ul.innerHTML = "";
+    const list = data.srv || [];
+    list.forEach((n, i) => {
+      const li = document.createElement("li");
+      if (srvEditing === i){
+        const inp = document.createElement("input");
+        inp.type = "text"; inp.className = "field"; inp.value = n; inp.maxLength = 60;
+        inp.setAttribute("aria-label", "Novi naziv usluge");
+        const ok = document.createElement("button"); ok.textContent = "Spremi"; ok.className = "go";
+        const no = document.createElement("button"); no.textContent = "Odustani"; no.className = "muted";
+        const doSave = () => {
+          const v = inp.value.trim();
+          if (!v){ srvMsg("Naziv ne može biti prazan."); return; }
+          if (v !== n && list.includes(v)){ srvMsg("Ta usluga već postoji."); return; }
+          list[i] = v; renameInEntries(n, v); srvEditing = null; srvCommit(); renderSrv(); srvMsg("Usluga je preimenovana.");
+        };
+        ok.onclick = doSave;
+        inp.addEventListener("keydown", ev => { if (ev.key === "Enter") doSave(); if (ev.key === "Escape"){ srvEditing = null; renderSrv(); } });
+        no.onclick = () => { srvEditing = null; renderSrv(); };
+        li.append(inp, ok, no);
+        setTimeout(() => inp.focus(), 0);
+      } else {
+        const t = document.createElement("span"); t.textContent = n;
+        const ed = document.createElement("button"); ed.textContent = "Uredi"; ed.className = "go";
+        ed.setAttribute("aria-label", "Uredi uslugu " + n);
+        ed.onclick = () => { srvEditing = i; srvConfirm = null; renderSrv(); };
+        const del = document.createElement("button");
+        del.textContent = srvConfirm === i ? "Sigurno?" : "Obriši";
+        del.setAttribute("aria-label", "Obriši uslugu " + n);
+        del.onclick = () => {
+          if (srvConfirm !== i){ srvConfirm = i; renderSrv(); return; }
+          list.splice(i, 1); srvConfirm = null; srvCommit(); renderSrv();
+          srvMsg("Usluga je obrisana. Postojeći termini zadržavaju njen naziv.");
+        };
+        li.append(t, ed, del);
+      }
+      ul.append(li);
+    });
+  }
+  function addSrv(){
+    const v = $("srvName").value.trim();
+    if (!v){ srvMsg("Upiši naziv usluge."); return; }
+    data.srv = data.srv || [];
+    if (data.srv.includes(v)){ srvMsg("Ta usluga već postoji."); return; }
+    data.srv.push(v);
+    $("srvName").value = "";
+    srvCommit(); renderSrv(); srvMsg("Usluga je dodana.");
   }
 
   /* ---- Mjesec ---- */
@@ -509,10 +781,11 @@ h1.big{
     for (let d = 1; d <= days; d++){
       const s = y+"-"+pad(m)+"-"+pad(d);
       const c = document.createElement("button");
-      c.className = "cell" + (s === today ? " today" : "") + (hasEntries(s) ? " has" : "");
+      c.className = "cell" + (s === today ? " today" : "") + (hasEntries(s) ? " has" : "") + (isVac(s) ? " vac" : "")
+        + (holiday(s) ? " hol" : isWeekend(s) ? " we" : "");
       c.textContent = d;
       if (!inRange(s)) c.disabled = true;
-      else { c.onclick = () => nav("d-"+s); c.setAttribute("aria-label", fullDate(parse(s))); }
+      else { c.onclick = () => nav("d-"+s); c.setAttribute("aria-label", fullDate(parse(s)) + (holiday(s) ? ", "+holiday(s) : "") + (isVac(s) ? ", godišnji odmor" : "")); if (holiday(s)) c.title = holiday(s); }
       grid.append(c);
     }
     document.title = MON_N[m-1]+" "+y;
@@ -527,11 +800,13 @@ h1.big{
     $("toMonth").textContent = "‹ "+MON_N[d.getMonth()]+" "+d.getFullYear();
     $("toMonth").onclick = () => nav("m-"+mKey);
     $("weekday").textContent = DAYS[d.getDay()];
-    $("dDate").textContent = fullDate(d);
+    $("vDay").classList.toggle("sun", d.getDay() === 0);
+    $("dDate").textContent = fullDate(d) + (holiday(s) ? " · " + holiday(s) : "") + (isVac(s) ? " · Godišnji odmor" : "");
     const prev = iso(addDays(d,-1)), next = iso(addDays(d,1));
     $("dPrev").disabled = !inRange(prev); $("dPrev").onclick = () => nav("d-"+prev);
     $("dNext").disabled = !inRange(next); $("dNext").onclick = () => nav("d-"+next);
 
+    const dayLabel = DAYS[d.getDay()] + ", " + fullDate(d);
     const isToday = s === iso(range().start);
     const nowH = new Date().getHours();
     const entries = data.days[s] || {};
@@ -572,7 +847,23 @@ h1.big{
       const raw = entries[h];
       const e = typeof raw === "string" ? {t:raw, d:0} : (raw || {t:"", d:0});
       const li = document.createElement("li");
-      li.className = "slot" + (isToday && nowH === h ? " now" : "") + (e.t || e.d ? " filled" : "");
+      li.className = "slot" + (isToday && nowH === h ? " now" : "") + (e.t || e.d || e.p || e.u ? " filled" : "") + (e.p ? " private" : "");
+      const privL = document.createElement("label");
+      privL.className = "priv";
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = !!e.p;
+      cb.setAttribute("aria-label", "Privatni termin u "+pad(h)+":00");
+      privL.append(cb, document.createTextNode("Privatno"));
+      const srvSel = document.createElement("select");
+      srvSel.className = "srv";
+      srvSel.setAttribute("aria-label", "Usluga za termin u "+pad(h)+":00");
+      const srvList = (data.srv || []).slice();
+      if (e.u && !srvList.includes(e.u)) srvList.unshift(e.u);
+      srvSel.append(new Option("Usluga", ""));
+      srvList.forEach(n => srvSel.append(new Option(n, n)));
+      srvSel.value = e.u || "";
+      if (!srvList.length) srvSel.classList.add("hidden");
       const lab = document.createElement("div");
       lab.className = "hour";
       lab.innerHTML = pad(h)+"<small>"+pad(h)+":"+pad(e.m || 0)+"</small>";
@@ -604,12 +895,16 @@ h1.big{
       warn.className = "warn";
       refs[h] = {li, ta, sel, warn, min};
       const update = () => {
-        const t = ta.value, d = +sel.value, m = +min.value;
+        const t = ta.value, d = +sel.value, m = +min.value, pv = cb.checked, us = srvSel.value;
         lab.querySelector("small").textContent = pad(h)+":"+pad(m);
         if (!data.days[s]) data.days[s] = {};
-        if (t.trim() || d) data.days[s][h] = {t:t, d:d, m:m}; else delete data.days[s][h];
+        (data.dirty = data.dirty || {})[s+"|"+h] = true;
+        lastInput = Date.now();
+        if (t.trim() || d || pv || us){ data.days[s][h] = {t:t, d:d, m:m}; if (pv) data.days[s][h].p = true; if (us) data.days[s][h].u = us; }
+        else delete data.days[s][h];
         if (!Object.keys(data.days[s]).length) delete data.days[s];
-        li.classList.toggle("filled", !!(t.trim() || d));
+        li.classList.toggle("filled", !!(t.trim() || d || pv || us));
+        li.classList.toggle("private", pv);
         showEnd();
         checkOverlaps();
         clearTimeout(saveTimer);
@@ -617,9 +912,55 @@ h1.big{
       };
       ta.addEventListener("input", update);
       sel.addEventListener("change", update);
+      cb.addEventListener("change", update);
+      srvSel.addEventListener("change", update);
       min.addEventListener("change", update);
-      row.append(min, sel, endTxt, warn);
-      box.append(ta, row);
+      const clr = document.createElement("button");
+      clr.type = "button";
+      clr.className = "clr";
+      clr.textContent = "×";
+      clr.setAttribute("aria-label", "Obriši termin u "+pad(h)+":00");
+      let clrTimer = null;
+      const clrReset = () => {
+        clearTimeout(clrTimer);
+        clr.classList.remove("confirm");
+        clr.textContent = "×";
+        clr.setAttribute("aria-label", "Obriši termin u "+pad(h)+":00");
+        li.classList.remove("confirming");
+      };
+      clr.onclick = () => {
+        if (!clr.classList.contains("confirm")){
+          clr.classList.add("confirm");
+          clr.textContent = "Sigurno?";
+          clr.setAttribute("aria-label", "Potvrdi brisanje termina u "+pad(h)+":00");
+          li.classList.add("confirming");
+          clrTimer = setTimeout(clrReset, 4000);
+          return;
+        }
+        clrReset();
+        ta.value = ""; sel.value = "0"; min.value = "0"; cb.checked = false; srvSel.value = "";
+        update();
+        clr.blur();
+      };
+      clr.addEventListener("blur", () => setTimeout(() => { if (document.activeElement !== clr) clrReset(); }, 200));
+      row.append(srvSel, min, sel, privL, endTxt, warn);
+      const shr = document.createElement("button");
+      shr.type = "button";
+      shr.className = "shr";
+      shr.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      shr.setAttribute("aria-label", "Podijeli termin u "+pad(h)+":00");
+      shr.onclick = async () => {
+        const st = h*60 + (+min.value), du = +sel.value;
+        const time = du ? fmt(st)+"–"+fmt(st+du) : "u "+fmt(st);
+        const text = dayLabel + "\n" + time + (srvSel.value ? "\n" + srvSel.value : "") + (ta.value.trim() ? "\n" + ta.value.trim() : "");
+        if (navigator.share){
+          try{ await navigator.share({text: text}); return; }
+          catch(err){ if (err && err.name === "AbortError") return; }
+        }
+        try{ await navigator.clipboard.writeText(text); status("Termin je kopiran, zalijepi ga u poruku."); }
+        catch(err){ status("Dijeljenje nije podržano u ovom pregledniku."); }
+      };
+      box.append(ta, row, shr, clr);
       li.append(lab, box); ol.append(li);
     }
     checkOverlaps();
@@ -641,7 +982,10 @@ h1.big{
     const today = iso(range().start);
     let changed = false;
     Object.keys(data.days).forEach(k => { if (k < today) { delete data.days[k]; changed = true; } });
-    if (changed) save();
+    const before = (data.vac || []).length;
+    data.vac = (data.vac || []).filter(v => v.do >= today);
+    if (data.vac.length !== before) changed = true;
+    if (changed) persist();
   }
   function route(){
     prune();
@@ -652,6 +996,22 @@ h1.big{
     else renderMonths();
   }
   $("toMonths").onclick = () => nav("");
+  $("ver").textContent = APP_VERSION;
+  $("vacAdd").onclick = addVac;
+  $("srvAdd").onclick = addSrv;
+  $("srvName").addEventListener("keydown", ev => { if (ev.key === "Enter") addSrv(); });
+  $("vacFrom").addEventListener("change", () => {
+    const f = $("vacFrom").value;
+    $("vacTo").min = f || iso(range().start);
+    if (f && (!$("vacTo").value || $("vacTo").value < f)) $("vacTo").value = f;
+  });
+  $("vacTo").addEventListener("change", () => {
+    const f = $("vacFrom").value, t = $("vacTo").value;
+    if (f && t && t < f){
+      $("vacTo").value = f;
+      $("vacStatus").textContent = "Datum završetka ne može biti prije početka.";
+    }
+  });
   window.addEventListener("hashchange", route);
   window.addEventListener("popstate", route);
   try{ if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); }catch(e){}
@@ -661,7 +1021,12 @@ h1.big{
   $("sheetOff").onclick = disconnectSheet;
   setSync(null);
   pullSheet();
-  window.addEventListener("online", () => { if (sheetUrl) pushSheet(); });
+  window.addEventListener("online", () => { if (sheetUrl) pullSheet(); });
+  document.addEventListener("visibilitychange", () => {
+    if (!sheetUrl) return;
+    if (document.visibilityState === "hidden" && syncTimer){ clearTimeout(syncTimer); syncTimer = null; pushSheet(); }
+    else if (document.visibilityState === "visible" && !syncTimer && !pushing) pullSheet();
+  });
 })();
 </script>
 </body>
