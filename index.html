@@ -296,7 +296,7 @@ h1.big{
 <script>
 (function(){
   // Verzija = datum i vrijeme izrade koda, oblik v.dM.Hm (dan, mjesec . sat, minute)
-  const APP_VERSION = "v.411.2213"; // 4. 11. u 22:13
+  const APP_VERSION = "v.611.1037"; // 6. 11. u 10:37
   const KEY = "raspored-v1";
   const START = 6, END = 21;
   const DAYS = ["Nedjelja","Ponedjeljak","Utorak","Srijeda","Četvrtak","Petak","Subota"];
@@ -693,6 +693,81 @@ h1.big{
     msg("Godišnji je dodan.");
   }
 
+  /* ---- Slika termina za dijeljenje ---- */
+  // Crta se sinkrono, da preglednik ne izgubi dodir korisnika prije otvaranja prozora za dijeljenje.
+  function cardFile(o){
+    const W = 1080, H = 1350;
+    const cv = document.createElement("canvas");
+    cv.width = W; cv.height = H;
+    const g = cv.getContext("2d");
+    const C = {bg:"#F2E9E0", card:"#FDFAF6", ink:"#3B2A21", muted:"#735A4C", accent:"#87583C", fill:"#EADCCF", red:"#9E3A2A"};
+    const SYS = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif';
+    const DISP = '"Bricolage Grotesque", ' + SYS;
+    const rr = (x, y, w, h, r) => { g.beginPath(); g.moveTo(x+r, y); g.arcTo(x+w, y, x+w, y+h, r); g.arcTo(x+w, y+h, x, y+h, r); g.arcTo(x, y+h, x, y, r); g.arcTo(x, y, x+w, y, r); g.closePath(); };
+    const wrap = (text, maxW, maxLines) => {
+      const out = [];
+      text.split("\n").forEach(par => {
+        let line = "";
+        par.split(/\s+/).forEach(w => {
+          const t = line ? line + " " + w : w;
+          if (g.measureText(t).width > maxW && line){ out.push(line); line = w; } else line = t;
+        });
+        out.push(line);
+      });
+      if (out.length > maxLines){ out.length = maxLines; out[maxLines-1] = out[maxLines-1].replace(/\s*\S*$/, "") + "…"; }
+      return out;
+    };
+
+    g.fillStyle = C.bg; g.fillRect(0, 0, W, H);
+    // kartica
+    g.fillStyle = C.card; rr(80, 120, W-160, H-260, 56); g.fill();
+    g.fillStyle = C.fill; rr(80, 120, W-160, 250, 56); g.fill(); g.fillRect(80, 300, W-160, 70);
+    // prstenovi kalendara
+    g.fillStyle = C.ink;
+    [330, W-330].forEach(x => { rr(x-16, 80, 32, 100, 16); g.fill(); });
+
+    const L = 150, maxW = W - 2*L;
+    g.textBaseline = "alphabetic";
+    g.fillStyle = o.sunday ? C.red : C.ink;
+    g.font = "800 104px " + DISP;
+    g.fillText(o.weekday, L, 290);
+    g.fillStyle = C.muted;
+    g.font = "500 44px " + SYS;
+    g.fillText(o.date, L, 345);
+
+    let y = 540;
+    g.fillStyle = C.accent;
+    g.font = "700 128px " + SYS;
+    g.fillText(o.time, L, y);
+
+    if (o.service){
+      y += 110;
+      g.fillStyle = C.ink;
+      g.font = "700 60px " + SYS;
+      wrap(o.service, maxW, 2).forEach(l => { g.fillText(l, L, y); y += 72; });
+      y -= 72;
+    }
+    if (o.desc){
+      y += o.service ? 90 : 110;
+      g.fillStyle = C.muted;
+      g.font = "400 48px " + SYS;
+      wrap(o.desc, maxW, o.service ? 4 : 6).forEach(l => { g.fillText(l, L, y); y += 64; });
+    }
+
+    // podnožje
+    g.fillStyle = C.muted;
+    g.font = "600 34px " + SYS;
+    g.textAlign = "center";
+    g.fillText("Raspored", W/2, H-62);
+
+    const url = cv.toDataURL("image/png");
+    const bin = atob(url.split(",")[1]);
+    const arr = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+    const name = "termin-" + o.iso + ".png";
+    return new File([arr], name, {type:"image/png"});
+  }
+
   /* ---- Usluge ---- */
   let srvEditing = null, srvConfirm = null;
   function srvMsg(m){
@@ -953,7 +1028,17 @@ h1.big{
         const st = h*60 + (+min.value), du = +sel.value;
         const time = du ? fmt(st)+"–"+fmt(st+du) : "u "+fmt(st);
         const text = dayLabel + "\n" + time + (srvSel.value ? "\n" + srvSel.value : "") + (ta.value.trim() ? "\n" + ta.value.trim() : "");
+        // Prvo slika (tada se nudi i Instagram), a ako to ne ide, običan tekst
         if (navigator.share){
+          let file = null;
+          try{
+            file = cardFile({iso: s, weekday: DAYS[d.getDay()], date: fullDate(d), time: du ? fmt(st)+" – "+fmt(st+du) : fmt(st),
+              service: srvSel.value, desc: ta.value.trim(), sunday: d.getDay() === 0 || !!holiday(s)});
+          }catch(err){ file = null; }
+          if (file && navigator.canShare && navigator.canShare({files:[file]})){
+            try{ await navigator.share({files:[file]}); return; }
+            catch(err){ if (err && err.name === "AbortError") return; }
+          }
           try{ await navigator.share({text: text}); return; }
           catch(err){ if (err && err.name === "AbortError") return; }
         }
